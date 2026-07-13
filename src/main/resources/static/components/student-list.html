@@ -1,0 +1,54 @@
+<!-- Students List Component -->
+<section id="studentList" class="list-section hidden">
+    <div class="list-header">
+        <h2>All Students</h2>
+        <div class="search-bar">
+            <input
+                type="text"
+                id="searchInput"
+                placeholder="🔍 Search by name or email..."
+                onkeyup="handleSearch()"
+            >
+            <button class="btn btn-primary" onclick="showSection('registerForm')">+ Add Student</button>
+        </div>
+    </div>
+
+    <!-- Statistics Card -->
+    <div class="stats-card">
+        <div class="stat">
+            <h3 id="totalStudents">0</h3>
+            <p>Total Students</p>
+        </div>
+        <div class="stat">
+            <h3 id="activeStudents">0</h3>
+            <p>Active Students</p>
+        </div>
+    </div>
+
+    <!-- Students Table -->
+    <div class="table-responsive">
+        <table class="students-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Date of Birth</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="studentTableBody">
+                <tr class="loading">
+                    <td colspan="6">Loading students...</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- No Students Message -->
+    <div id="noStudentsMessage" class="no-data-message hidden">
+        <p>📭 No students found</p>
+        <button class="btn btn-primary" onclick="showSection('registerForm')">Register First Student</button>
+    </div>
+</section>

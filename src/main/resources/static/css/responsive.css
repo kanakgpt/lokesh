@@ -1,0 +1,93 @@
+/* Responsive Design */
+@media (max-width: 768px) {
+    .navbar-container {
+        flex-direction: column;
+        height: auto;
+        padding: 15px 20px;
+        gap: 15px;
+    }
+
+    .nav-menu {
+        width: 100%;
+        flex-direction: column;
+        gap: 10px;
+        text-align: center;
+    }
+
+    .container {
+        padding: 20px 15px;
+    }
+
+    .hero-content h2 {
+        font-size: 32px;
+    }
+
+    .hero-content p {
+        font-size: 16px;
+    }
+
+    .form-container {
+        padding: 30px 20px;
+    }
+
+    .list-header {
+        flex-direction: column;
+    }
+
+    .list-header h2 {
+        font-size: 24px;
+    }
+
+    .search-bar {
+        width: 100%;
+        flex-direction: column;
+    }
+
+    .stats-card {
+        grid-template-columns: 1fr;
+    }
+
+    .students-table {
+        font-size: 12px;
+    }
+
+    .students-table th,
+    .students-table td {
+        padding: 10px;
+    }
+
+    .students-table .action-buttons {
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .students-table .btn-sm {
+        width: 100%;
+        padding: 8px 12px;
+    }
+
+    .toast {
+        left: 20px;
+        right: 20px;
+        max-width: none;
+    }
+}
+
+@media (max-width: 480px) {
+    .logo h1 {
+        font-size: 18px;
+    }
+
+    .hero-section {
+        padding: 40px 20px;
+    }
+
+    .btn {
+        width: 100%;
+        margin: 5px 0 !important;
+    }
+
+    .form-header h2 {
+        font-size: 22px;
+    }
+}

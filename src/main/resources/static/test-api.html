@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Test Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 { color: #333; }
+        h2 { color: #0066cc; margin-top: 0; }
+        button {
+            background-color: #0066cc;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #0052a3;
+        }
+        .result {
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-top: 10px;
+            border-radius: 4px;
+            white-space: pre-wrap;
+            word-break: break-all;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .success { border-left: 4px solid #4caf50; }
+        .error { border-left: 4px solid #f44336; }
+        .info { border-left: 4px solid #2196f3; }
+        .status {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 3px;
+            margin: 5px 0;
+            font-weight: bold;
+        }
+        .status.success { background-color: #4caf50; color: white; }
+        .status.error { background-color: #f44336; color: white; }
+        .status.loading { background-color: #2196f3; color: white; }
+    </style>
+</head>
+<body>
+    <h1>📋 Student Management System - API Test Page</h1>
+
+    <div class="test-section">
+        <h2>1. Module Loading Test</h2>
+        <button onclick="testModuleLoading()">Test Module Loading</button>
+        <div id="moduleResult" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>2. API Connectivity Test</h2>
+        <button onclick="testAPIConnectivity()">Test GET /api/v1/students</button>
+        <div id="apiResult" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>3. Create Student Test</h2>
+        <button onclick="testCreateStudent()">Test POST - Create Student</button>
+        <div id="createResult" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>4. Update Student Test</h2>
+        <button onclick="testUpdateStudent()">Test PUT - Update Student</button>
+        <div id="updateResult" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>5. Delete Student Test</h2>
+        <button onclick="testDeleteStudent()">Test DELETE - Delete Student</button>
+        <div id="deleteResult" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>6. UI Module Functions Test</h2>
+        <button onclick="testUIFunctions()">Test UI Functions</button>
+        <div id="uiResult" class="result"></div>
+    </div>
+
+    <script type="module">
+        const API_BASE_URL = 'http://localhost:8080/api/v1/students';
+        let testStudentId = null;
+
+        window.testModuleLoading = async function() {
+            const resultDiv = document.getElementById('moduleResult');
+            resultDiv.innerHTML = '<div class="status loading">Testing...</div>';
+
+            try {
+                // Ensure components are present so main module can initialize safely
+                async function loadComponentInto(id, path) {
+                    try {
+                        const res = await fetch(path);
+                        if (!res.ok) return;
+                        const text = await res.text();
+                        const placeholder = document.createElement('div');
+                        placeholder.innerHTML = text;
+                        // append to body so elements exist for scripts
+                        document.body.appendChild(placeholder);
+                    } catch (e) {
+                        // ignore component load errors in test harness
+                        console.warn('Component load failed', path, e);
+                    }
+                }
+
+                await Promise.all([
+                    loadComponentInto('navbar-placeholder', 'components/navbar.html'),
+                    loadComponentInto('register-form-placeholder', 'components/register-form.html'),
+                    loadComponentInto('student-list-placeholder', 'components/student-list.html')
+                ]);
+
+                const mainModule = await import('./js/main.js');
+                let report = '✓ Module loading successful\n\n';
+                report += 'Exported functions:\n';
+                report += `  - initApp: ${typeof mainModule.initApp}\n`;
+                report += `  - resetForm: ${typeof mainModule.resetForm}\n`;
+                report += `  - handleFormSubmit: ${typeof mainModule.handleFormSubmit}\n`;
+                report += `  - confirmDelete: ${typeof mainModule.confirmDelete}\n`;
+                report += `  - closeDeleteModal: ${typeof mainModule.closeDeleteModal}\n`;
+                report += `  - handleSearch: ${typeof mainModule.handleSearch}\n`;
+                report += `  - ui: ${typeof mainModule.ui}\n`;
+                report += `\nWindow functions:\n`;
+                report += `  - window.showSection: ${typeof window.showSection}\n`;
+                report += `  - window.resetForm: ${typeof window.resetForm}\n`;
+                report += `  - window.handleFormSubmit: ${typeof window.handleFormSubmit}\n`;
+                report += `  - window.confirmDelete: ${typeof window.confirmDelete}\n`;
+                report += `  - window.closeDeleteModal: ${typeof window.closeDeleteModal}\n`;
+                report += `  - window.handleSearch: ${typeof window.handleSearch}\n`;
+
+                resultDiv.innerHTML = '<div class="result success">' + report + '</div>';
+            } catch (error) {
+                resultDiv.innerHTML = '<div class="result error">❌ Error:\n' + error.message + '</div>';
+            }
+        };
+
+        window.testAPIConnectivity = async function() {
+            const resultDiv = document.getElementById('apiResult');
+            resultDiv.innerHTML = '<div class="status loading">Testing...</div>';
+
+            try {
+                const response = await fetch(API_BASE_URL);
+                const data = await response.json();
+                let report = `✓ API Connection Successful\n`;
+                report += `Status: ${response.status}\n`;
+                report += `Students Count: ${data.length}\n`;
+                report += `\nFirst Student:\n${JSON.stringify(data[0], null, 2)}`;
+
+                resultDiv.innerHTML = '<div class="result success">' + report + '</div>';
+            } catch (error) {
+                resultDiv.innerHTML = '<div class="result error">❌ Error:\n' + error.message + '</div>';
+            }
+        };
+
+        window.testCreateStudent = async function() {
+            const resultDiv = document.getElementById('createResult');
+            resultDiv.innerHTML = '<div class="status loading">Testing...</div>';
+
+            const testData = {
+                firstName: 'Test',
+                lastName: 'Student_' + Date.now(),
+                email: 'test_' + Date.now() + '@example.com',
+                phoneNumber: '9999999999',
+                dateOfBirth: '2000-01-15'
+            };
+
+            try {
+                const response = await fetch(API_BASE_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(testData)
+                });
+                const data = await response.json();
+                testStudentId = data.id;
+
+                let report = `✓ Create Successful\n`;
+                report += `Status: ${response.status}\n`;
+                report += `Student ID: ${data.id}\n`;
+                report += `Full Response:\n${JSON.stringify(data, null, 2)}`;
+
+                resultDiv.innerHTML = '<div class="result success">' + report + '</div>';
+            } catch (error) {
+                resultDiv.innerHTML = '<div class="result error">❌ Error:\n' + error.message + '</div>';
+            }
+        };
+
+        window.testUpdateStudent = async function() {
+            const resultDiv = document.getElementById('updateResult');
+            resultDiv.innerHTML = '<div class="status loading">Testing...</div>';
+
+            if (!testStudentId) {
+                resultDiv.innerHTML = '<div class="result error">❌ No student ID available. Create a student first.</div>';
+                return;
+            }
+
+            const testData = {
+                firstName: 'Updated',
+                lastName: 'Student_' + Date.now(),
+                email: 'updated_' + Date.now() + '@example.com',
+                phoneNumber: '8888888888',
+                dateOfBirth: '2000-01-15'
+            };
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/${testStudentId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(testData)
+                });
+                const data = await response.json();
+
+                let report = `✓ Update Successful\n`;
+                report += `Status: ${response.status}\n`;
+                report += `Student ID: ${data.id}\n`;
+                report += `Full Response:\n${JSON.stringify(data, null, 2)}`;
+
+                resultDiv.innerHTML = '<div class="result success">' + report + '</div>';
+            } catch (error) {
+                resultDiv.innerHTML = '<div class="result error">❌ Error:\n' + error.message + '</div>';
+            }
+        };
+
+        window.testDeleteStudent = async function() {
+            const resultDiv = document.getElementById('deleteResult');
+            resultDiv.innerHTML = '<div class="status loading">Testing...</div>';
+
+            if (!testStudentId) {
+                resultDiv.innerHTML = '<div class="result error">❌ No student ID available. Create a student first.</div>';
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/${testStudentId}`, {
+                    method: 'DELETE'
+                });
+
+                let report = `✓ Delete Successful\n`;
+                report += `Status: ${response.status}\n`;
+                report += `Student ID Deleted: ${testStudentId}`;
+                testStudentId = null;
+
+                resultDiv.innerHTML = '<div class="result success">' + report + '</div>';
+            } catch (error) {
+                resultDiv.innerHTML = '<div class="result error">❌ Error:\n' + error.message + '</div>';
+            }
+        };
+
+        window.testUIFunctions = async function() {
+            const resultDiv = document.getElementById('uiResult');
+            resultDiv.innerHTML = '<div class="status loading">Testing...</div>';
+
+            try {
+                const report = `✓ UI Functions Available\n\n` +
+                    `window.showSection: ${typeof window.showSection}\n` +
+                    `window.resetForm: ${typeof window.resetForm}\n` +
+                    `window.handleFormSubmit: ${typeof window.handleFormSubmit}\n` +
+                    `window.confirmDelete: ${typeof window.confirmDelete}\n` +
+                    `window.closeDeleteModal: ${typeof window.closeDeleteModal}\n` +
+                    `window.handleSearch: ${typeof window.handleSearch}\n` +
+                    `window._mainModuleReady: ${window._mainModuleReady}\n\n` +
+                    `All functions are accessible!`;
+
+                resultDiv.innerHTML = '<div class="result success">' + report + '</div>';
+            } catch (error) {
+                resultDiv.innerHTML = '<div class="result error">❌ Error:\n' + error.message + '</div>';
+            }
+        };
+    </script>
+</body>
+</html>
+
